@@ -239,15 +239,16 @@ function renderTasks(){
                             </button>
                         </div>
                         <p class="task-description">${task.description}</p>
-                        <div class="task-time">${task.startTime} - ${task.endTime}</div>
+                        <div class="task-time">${customTime(task.startTime)} -${customTime(task.endTime)}</div>
                     </div>`
                 }).join(" ");
     
-taskGrid.innerHTML= html +oldHtml;
+taskGrid.innerHTML= html + oldHtml;
 }
 //Hàm kiểm tra thời gian
 function checkDateTime(date, timeStart, timeEnd){
 
+    console.log(timeStart)
     if(new Date(date)<new Date) {
         alert("Bạn cần nhập thời  gian lớn hơn hoặc bằng hôm nay");
         return false;
@@ -257,6 +258,13 @@ function checkDateTime(date, timeStart, timeEnd){
         return false;
     };
     return true;
+}
+//Hàm đưa ra định dạng thời gian
+function customTime(time){
+    let result="";
+    let arr=time.toString().split(":");
+    if(arr[0]>12) return result= `${(arr[0]-12).toString().padStart(2,'0')}:${arr[1]} PM`;
+    if(arr[0]<=12) return result= `${arr[0]}:${arr[1]} AM`;
 }
 
 
