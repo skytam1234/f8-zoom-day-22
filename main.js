@@ -57,9 +57,11 @@ addBtn.onclick=function(){
 }
 //đóng form
 closeTask.onclick=function(){
-    addTaskForm.className="modal-overlay";
+    formToDoTask.reset(); 
+    addTaskForm.className="modal-overlay";   
 }
 cancelBtn.onclick=function(){
+    formToDoTask.reset(); 
     addTaskForm.className="modal-overlay";
 }
 
