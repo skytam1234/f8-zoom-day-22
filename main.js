@@ -263,8 +263,8 @@ function checkDateTime(date, timeStart, timeEnd){
 function customTime(time){
     let result="";
     let arr=time.toString().split(":");
-    if(arr[0]>12) return result= `${(arr[0]-12).toString().padStart(2,'0')}:${arr[1]} PM`;
-    if(arr[0]<=12) return result= `${arr[0]}:${arr[1]} AM`;
+    if(arr[0]>=12) return result= `${(arr[0]-12).toString().padStart(2,'0')}:${arr[1]} PM`;
+    if(arr[0]<12) return result= `${arr[0]}:${arr[1]} AM`;
 }
 
 
