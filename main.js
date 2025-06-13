@@ -103,7 +103,9 @@ todoTask.onsubmit=function(event){
     if(indexEdit===null){
         if(!todoTasks.find((data)=>data.title===task.title)){
             todoTasks.unshift(task); 
-            saveTaskInLocalstorage(todoTasks);           
+            saveTaskInLocalstorage(todoTasks);  
+            renderTasks();
+            closeTodoForm();         
         }else{
             alert('Thêm task thất bại, trùng title')
         }       
@@ -113,13 +115,13 @@ todoTask.onsubmit=function(event){
         if(!newTasks.find((data)=>data.title===task.title)){
             todoTasks[indexEdit]=task;
             saveTaskInLocalstorage(todoTasks);
+            renderTasks();
+            closeTodoForm();   
         }else{
             alert('Sửa task thất bại, trùng title')
         }       
-    }
+    }   
     
-    renderTasks();
-    closeTodoForm();
 }
 //render lần đầu
 renderTasks()
