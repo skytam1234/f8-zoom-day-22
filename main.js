@@ -1,270 +1,200 @@
-$=document.querySelector.bind(document)
+$= document.querySelector.bind(document)
 $$=document.querySelectorAll.bind(document)
-const addBtn= $(".add-btn")
-const  addTaskForm=$("#addTaskModal")
-const closeTask=$(".modal-close");
-const firstInputElement=$(".todo-app-form .form-group:first-child input")
-const cancelBtn=$(".modal-footer button:first-child ")
-const submitFormBtn=$(".modal-footer button:nth-child(2) ")
 
-const formToDoTask=$(".todo-app-form")
+const searchInput=$('.search-input')
+const activeBtn=$('#active-btn')
+const completedBtn=$('#completed-btn')
+const allTaskBtn=$('#allTask-btn')
+const addBtn= $('.add-btn')
+const closeBtn=$(".modal-close")
+const cancelBtn=$('.btn-cancel')
+const submitBtn=$('.btn-submit')
+const todoForm= $('#addTaskModal')
 
-const titleTask=$("#taskTitle")
-const taskDescription=$("#taskDescription")
-const taskCategory=$("#taskCategory")
-const taskPriority=$("#taskPriority")
-const startTime=$("#startTime")
-const endTime=$("#endTime")
-const taskDate=$("#taskDate")
-const taskColor=$("#taskColor")
-const taskGrid=$(".task-grid")
+const taskTitle=$('#taskTitle')
 
-const todoTasks = []
-
-//dựng đối tượng NewTask
-function NewTask(){
-    this.title,
-    this.description,
-    this.category,
-    this.priority,
-    this.startTime,
-    this.endTime,
-    this.DueDate,
-    this.cardColor,
-    this.isCompleted=false;
-}
+const todoTask=$('.todo-app-form')
+const todoList=$('#todoList')
+let todoTasks=[];
+let indexEdit=null;
 
 
-function getDataTask(){
-    let newData= new NewTask();
-        newData.title=titleTask.value;
-        newData.description=taskDescription.value;
-        newData.category=taskCategory.value;
-        newData.priority=taskPriority.value;
-        newData.startTime=startTime.value;
-        newData.endTime=endTime.value;
-        newData.DueDate=taskDate.value;
-        newData.cardColor=taskColor.value;
-return newData;
-}
-
-//mở form
-addBtn.onclick=function(){
-    addTaskForm.className="modal-overlay show";
-    setTimeout(() => {
-        firstInputElement.focus();
-    }, 200);
-}
-//đóng form
-closeTask.onclick=function(){
-    formToDoTask.reset(); 
-    addTaskForm.className="modal-overlay";   
-}
-cancelBtn.onclick=function(){
-    formToDoTask.reset(); 
-    addTaskForm.className="modal-overlay";
-}
-
-//Bắt sự kiện và Ngăn chặn hành vi submit mặc định của form
-formToDoTask.onsubmit=function(event){
-    event.preventDefault();   
-}
-//Thêm task vào todoTasks, reset form, đóng form nhập
-submitFormBtn.onclick=function (){
-    let dataTask= getDataTask();
-    if(dataTask.title.toString().trim()===""||dataTask.description.toString().trim()===""||dataTask.category.toString().trim()===""||dataTask.priority.toString().trim()===""
-    ||dataTask.startTime.toString().trim()===""||dataTask.endTime.toString().trim()===""||dataTask.DueDate.toString().trim()===""||dataTask.cardColor.toString().trim()===""){
-        
-    }else{
-        let checkTime= checkDateTime(dataTask.DueDate,dataTask.startTime,dataTask.endTime);
-        if(checkTime){
-            todoTasks.unshift(dataTask);
-            renderTasks()
-            formToDoTask.reset(); 
-            addTaskForm.className="modal-overlay";
-        }        
-    }    
-}
-//Hàm renderTasks()
-function renderTasks(){
-  let oldHtml=`<!-- Team Meeting Card -->
-            <div class="task-card blue completed">
-                <div class="task-header">
-                    <h3 class="task-title">Team Meeting</h3>
-                    <button class="task-menu">
-                        <i class="fa-solid fa-ellipsis fa-icon"></i>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item">
-                                <i class="fa-solid fa-pen-to-square fa-icon"></i>
-                                Edit
-                            </div>
-                            <div class="dropdown-item complete">
-                                <i class="fa-solid fa-check fa-icon"></i>
-                                Mark as Active
-                            </div>
-                            <div class="dropdown-item delete">
-                                <i class="fa-solid fa-trash fa-icon"></i>
-                                Delete
-                            </div>
-                        </div>
-                    </button>
-                </div>
-                <p class="task-description">Lorem ipsum dolor sit amet, consectetur elit tddv niorem ldfsfrfj.</p>
-                <div class="task-time">10:30 AM - 12:00 PM</div>
-            </div>
-
-            <!-- Work on Branding Card -->
-            <div class="task-card purple">
-                <div class="task-header">
-                    <h3 class="task-title">Work on Branding</h3>
-                    <button class="task-menu">
-                        <i class="fa-solid fa-ellipsis fa-icon"></i>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item">
-                                <i class="fa-solid fa-pen-to-square fa-icon"></i>
-                                Edit
-                            </div>
-                            <div class="dropdown-item complete">
-                                <i class="fa-solid fa-check fa-icon"></i>
-                                Mark as Complete
-                            </div>
-                            <div class="dropdown-item delete">
-                                <i class="fa-solid fa-trash fa-icon"></i>
-                                Delete
-                            </div>
-                        </div>
-                    </button>
-                </div>
-                <p class="task-description">Lorem ipsum dolor sit amet, consectetur elit tddv niorem ldfsfrfj.</p>
-                <div class="task-time">10:30 AM - 12:00 PM</div>
-            </div>
-
-            <!-- Make a Report Card -->
-            <div class="task-card yellow">
-                <div class="task-header">
-                    <h3 class="task-title">Make a Report for client</h3>
-                    <button class="task-menu">
-                        <i class="fa-solid fa-ellipsis fa-icon"></i>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item">
-                                <i class="fa-solid fa-pen-to-square fa-icon"></i>
-                                Edit
-                            </div>
-                            <div class="dropdown-item complete">
-                                <i class="fa-solid fa-check fa-icon"></i>
-                                Mark as Complete
-                            </div>
-                            <div class="dropdown-item delete">
-                                <i class="fa-solid fa-trash fa-icon"></i>
-                                Delete
-                            </div>
-                        </div>
-                    </button>
-                </div>
-                <p class="task-description">Lorem ipsum dolor sit amet, consectetur elit tddv niorem ldfsfrfj.</p>
-                <div class="task-time">10:30 AM - 12:00 PM</div>
-            </div>
-
-            <!-- Create a planer Card -->
-            <div class="task-card pink">
-                <div class="task-header">
-                    <h3 class="task-title">Create a planer</h3>
-                    <button class="task-menu">
-                        <i class="fa-solid fa-ellipsis fa-icon"></i>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item">
-                                <i class="fa-solid fa-pen-to-square fa-icon"></i>
-                                Edit
-                            </div>
-                            <div class="dropdown-item complete">
-                                <i class="fa-solid fa-check fa-icon"></i>
-                                Mark as Complete
-                            </div>
-                            <div class="dropdown-item delete">
-                                <i class="fa-solid fa-trash fa-icon"></i>
-                                Delete
-                            </div>
-                        </div>
-                    </button>
-                </div>
-                <p class="task-description">Lorem ipsum dolor sit amet, consectetur elit tddv niorem ldfsfrfj.</p>
-                <div class="task-time">10:30 AM - 12:00 PM</div>
-            </div>
-
-            <!-- Create Treatment Plan Card -->
-            <div class="task-card green">
-                <div class="task-header">
-                    <h3 class="task-title">Create Treatment Plan</h3>
-                    <button class="task-menu">
-                        <i class="fa-solid fa-ellipsis fa-icon"></i>
-                        <div class="dropdown-menu">
-                            <div class="dropdown-item">
-                                <i class="fa-solid fa-pen-to-square fa-icon"></i>
-                                Edit
-                            </div>
-                            <div class="dropdown-item complete">
-                                <i class="fa-solid fa-check fa-icon"></i>
-                                Mark as Complete
-                            </div>
-                            <div class="dropdown-item delete">
-                                <i class="fa-solid fa-trash fa-icon"></i>
-                                Delete
-                            </div>
-                        </div>
-                    </button>
-                </div>
-                <p class="task-description">Lorem ipsum dolor sit amet, consectetur elit tddv niorem ldfsfrfj.</p>
-                <div class="task-time">10:30 AM - 12:00 PM</div>
-            </div>`;
- let html=  todoTasks.map((task)=>{
-            return `<div class="task-card ${task.cardColor} ${task.isCompleted?task.isCompleted:""}">
-                        <div class="task-header">
-                            <h3 class="task-title">${task.title}</h3>
-                            <button class="task-menu">
-                            <i class="fa-solid fa-ellipsis fa-icon"></i>
-                            <div class="dropdown-menu">
-                                <div class="dropdown-item">
-                                    <i class="fa-solid fa-pen-to-square fa-icon"></i>
-                                    Edit
-                                </div>
-                                <div class="dropdown-item complete">
-                                    <i class="fa-solid fa-check fa-icon"></i>
-                                    Mark as Complete
-                                </div>
-                                <div class="dropdown-item delete">
-                                    <i class="fa-solid fa-trash fa-icon"></i>
-                                    Delete
-                                </div>
-                            </div>
-                            </button>
-                        </div>
-                        <p class="task-description">${task.description}</p>
-                        <div class="task-time">${customTime(task.startTime)} -${customTime(task.endTime)}</div>
-                    </div>`
-                }).join(" ");
-    
-taskGrid.innerHTML= html + oldHtml;
-}
-//Hàm kiểm tra thời gian
-function checkDateTime(date, timeStart, timeEnd){
-
-    console.log(timeStart)
-    if(new Date(date)<new Date) {
-        alert("Bạn cần nhập thời  gian lớn hơn hoặc bằng hôm nay");
-        return false;
-    };
-    if(timeStart>=timeEnd){
-        alert("Thời gian kết thúc phải lớn hơn thời gian bắt đầu");
-        return false;
-    };
-    return true;
-}
-//Hàm đưa ra định dạng thời gian
 function customTime(time){
     let result="";
     let arr=time.toString().split(":");
     if(arr[0]>=12) return result= `${(arr[0]-12).toString().padStart(2,'0')}:${arr[1]} PM`;
     if(arr[0]<12) return result= `${arr[0]}:${arr[1]} AM`;
 }
+function getTaskInLocalstorage(){
+  let tasks=JSON.parse( localStorage.getItem('todoTasks'))??[];
+  return tasks;
+}
+function saveTaskInLocalstorage(todoTasks){
+    localStorage.setItem('todoTasks',JSON.stringify(todoTasks))
+}
+function renderTasks(arrTask){
+   let tasks=getTaskInLocalstorage();
+   if(arrTask!==undefined) tasks=arrTask;
+       
+    let html=""+ tasks.map(function(task,index){
+        return `
+        <div class="task-card ${task.color} ${
+                task.isCompleted ? "completed" : ""
+            }">
+        <div class="task-header">
+          <h3 class="task-title">${task.title}</h3>
+          <button class="task-menu">
+            <i class="fa-solid fa-ellipsis fa-icon"></i>
+            <div class="dropdown-menu">
+              <div class="dropdown-item edit-btn" data-index="${index}">
+                <i class="fa-solid fa-pen-to-square fa-icon"></i>
+                Edit
+              </div>
+              <div class="dropdown-item complete-btn" data-index="${index}">
+                <i class="fa-solid fa-check fa-icon"></i>
+                ${task.isCompleted ? "Mark as Active" : "Mark as Complete"} 
+              </div>
+              <div class="dropdown-item delete delete-btn" data-index="${index}">
+                <i class="fa-solid fa-trash fa-icon"></i>
+                Delete
+              </div>
+            </div>
+          </button>
+        </div>
+        <p class="task-description">${task.description}</p>
+        <div class="task-time">${customTime(task.startTime)} - ${customTime(task.endTime)}</div>
+      </div>
+        `
+    }).join("");
 
+
+    if(html.length===0) html=`<div>Không tìm thấy nhiệm vụ vào</div>`
+    todoList.innerHTML=html;
+}
+
+function openTodoForm(){
+    todoForm.className="modal-overlay show"
+    setTimeout(()=>{taskTitle.focus()},100)
+}
+
+function closeTodoForm(){
+    setTimeout(()=>todoForm.querySelector(".modal").scrollTop=0,200)
+    
+    todoForm.className="modal-overlay"
+    todoTask.reset();
+}
+// Đóng mở form nhập dữ liệu
+addBtn.onclick=function(){
+    indexEdit=null;
+    const modalTitle= todoForm.querySelector('.modal-title')
+    modalTitle.textContent=" Add New Task"
+    submitBtn.textContent="Create Task"
+    openTodoForm();
+};
+closeBtn.onclick=closeTodoForm;
+cancelBtn.onclick=closeTodoForm;
+
+//Submit form
+todoTask.onsubmit=function(event){
+    event.preventDefault();
+    let task=Object.fromEntries(new FormData(todoTask)); 
+    task.isCompleted=false;   
+    todoTasks=getTaskInLocalstorage();
+    if(indexEdit===null){
+        if(!todoTasks.find((data)=>data.title===task.title)){
+            todoTasks.unshift(task); 
+            saveTaskInLocalstorage(todoTasks);           
+        }else{
+            alert('Thêm task thất bại, trùng title')
+        }       
+    }else{
+        let newTasks=todoTasks.slice();
+        newTasks.splice(indexEdit,1);
+        if(!newTasks.find((data)=>data.title===task.title)){
+            todoTasks[indexEdit]=task;
+            saveTaskInLocalstorage(todoTasks);
+        }else{
+            alert('Sửa task thất bại, trùng title')
+        }       
+    }
+    
+    renderTasks();
+    closeTodoForm();
+}
+//render lần đầu
+renderTasks()
+// Sửa xóa
+todoList.onclick=function(event){
+    const editBtn=event.target.closest(".edit-btn");
+    const completedBtn=event.target.closest(".complete-btn");
+    const deleteBtn=event.target.closest(".delete-btn")
+
+    if(deleteBtn){
+        let tasks= getTaskInLocalstorage();
+        let index= deleteBtn.dataset.index;
+        if(confirm("Bạn chắc chắn muốn xóa  công việc này?")){
+            let newTasks= tasks.splice(index,1);
+            saveTaskInLocalstorage(tasks);
+            renderTasks();
+        }
+    }
+    if(completedBtn){
+        let tasks= getTaskInLocalstorage();
+        let index= completedBtn.dataset.index;
+        tasks[index].isCompleted=true;
+        saveTaskInLocalstorage(tasks);
+        renderTasks();
+    }
+    if( editBtn){
+        let index= editBtn.dataset.index;
+        indexEdit=index;
+        openTodoForm();
+        const modalTitle= todoForm.querySelector('.modal-title')
+        modalTitle.textContent=" Edit todo Tasks"
+        submitBtn.textContent="Save Edit"
+        let task= getTaskInLocalstorage()[index];
+
+        for(let key in task){
+            if(key !="isCompleted"){
+                const input=$(`[name=${key}]`)
+                input.value=task[key];
+            }           
+        }
+    }
+}
+// chức năng tìm kiếm
+searchInput.oninput=function(){
+    if(searchInput.value !=null){
+        allTaskBtn.className="tab-button active";
+        completedBtn.className="tab-button completed-btn";
+        activeBtn.className="tab-button ";
+        let str= searchInput.value.toString().toLowerCase();
+        let todoTasks=getTaskInLocalstorage();
+        let newList= todoTasks.filter((task)=> (task.title.toString().toLowerCase().includes(str)||task.description.toString().toLowerCase().includes(str)));
+        renderTasks(newList);
+    }     
+}
+//loc complete. active
+allTaskBtn.onclick=function(){
+    allTaskBtn.className="tab-button active";
+    completedBtn.className="tab-button completed-btn";
+    activeBtn.className="tab-button ";
+    renderTasks();
+}
+activeBtn.onclick=function(){
+    allTaskBtn.className="tab-button";
+    completedBtn.className="tab-button completed-btn";
+    activeBtn.className="tab-button active";
+    let todoTasks=getTaskInLocalstorage();
+    let newList= todoTasks.filter((task)=> task.isCompleted===false);
+    renderTasks(newList);
+}
+completedBtn.onclick=function(){
+    allTaskBtn.className="tab-button";
+    activeBtn.className="tab-button ";
+    completedBtn.className="tab-button completed-btn active";
+    let todoTasks=getTaskInLocalstorage();
+    let newList= todoTasks.filter((task)=> task.isCompleted===true);
+    renderTasks(newList);
+}
 
