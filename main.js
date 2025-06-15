@@ -1,48 +1,111 @@
-$= document.querySelector.bind(document)
-$$=document.querySelectorAll.bind(document)
+$ = document.querySelector.bind(document);
+$$ = document.querySelectorAll.bind(document);
 
-const searchInput=$('.search-input')
-const activeBtn=$('#active-btn')
-const completedBtn=$('#completed-btn')
-const allTaskBtn=$('#allTask-btn')
-const addBtn= $('.add-btn')
-const closeBtn=$(".modal-close")
-const cancelBtn=$('.btn-cancel')
-const submitBtn=$('.btn-submit')
-const todoForm= $('#addTaskModal')
+const searchInput = $(".search-input");
+const activeBtn = $("#active-btn");
+const completedBtn = $("#completed-btn");
+const allTaskBtn = $("#allTask-btn");
+const addBtn = $(".add-btn");
+const closeBtn = $(".modal-close");
+const cancelBtn = $(".btn-cancel");
+const submitBtn = $(".btn-submit");
+const todoForm = $("#addTaskModal");
 
-const taskTitle=$('#taskTitle')
+const taskTitle = $("#taskTitle");
 
-const todoTask=$('.todo-app-form')
-const todoList=$('#todoList')
-let todoTasks=[];
-let indexEdit=null;
+const todoTask = $(".todo-app-form");
+const todoList = $("#todoList");
+let todoTasks = [];
+let indexEdit = null;
 
+//Hàm tạo toast
+const toasts = [
+  {
+    title: " Thành công",
+    message: "Thành công",
+    type: "susses",
+    toastIcon: "fa-solid fa-check",
+  },
+  {
+    title: " Thông báo",
+    message: "Đây là thông báo",
+    type: "info",
+    toastIcon: "fa-solid fa-circle-exclamation",
+  },
+  {
+    title: " Cảnh báo",
+    message: "Đây là cảnh báo",
+    type: "warning",
+    toastIcon: "fa-solid fa-circle-exclamation",
+  },
+  {
+    title: " Thất bại",
+    message: "Thất bại",
+    type: "error",
+    toastIcon: "fa-solid fa-exclamation",
+  },
+];
 
-function customTime(time){
-    let result="";
-    let arr=time.toString().split(":");
-    if(arr[0]>=12) return result= `${(arr[0]-12).toString().padStart(2,'0')}:${arr[1]} PM`;
-    if(arr[0]<12) return result= `${arr[0]}:${arr[1]} AM`;
+function createToast(toast, message) {
+  if (!toast) return;
+  const toastElementOld = $(".toast");
+  document.body.removeChild(toastElementOld);
+  const toastElement = document.createElement("div");
+  toastElement.message ? (toast.message = message) : toast;
+  toastElement.classList.add("toast", `toast--${toast.type}`);
+  toastElement.innerHTML = `
+  <div class="toast__icon">
+        <i class="${toast.toastIcon}"></i>
+      </div>
+      <div class="toast__body">
+        <h3 class="toast__title">${toast.title}</h3>
+        <p class="toast__msg">
+         ${toast.message}
+        </p>
+      </div>
+      <div class="toast__close">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+  `;
+  document.body.appendChild(toastElement);
 }
-function getTaskInLocalstorage(){
-  let tasks=JSON.parse( localStorage.getItem('todoTasks'))??[];
+//escape
+function escape(html) {
+  const divElement = document.createElement("div");
+  divElement.textContent = html;
+  return divElement.innerHTML;
+}
+//Hàm  định dạng thời gian
+function customTime(time) {
+  let result = "";
+  let arr = time.toString().split(":");
+  if (arr[0] >= 12)
+    return (result = `${(arr[0] - 12).toString().padStart(2, "0")}:${
+      arr[1]
+    } PM`);
+  if (arr[0] < 12) return (result = `${arr[0]}:${arr[1]} AM`);
+}
+function getTaskInLocalstorage() {
+  let tasks = JSON.parse(localStorage.getItem("todoTasks")) ?? [];
   return tasks;
 }
-function saveTaskInLocalstorage(todoTasks){
-    localStorage.setItem('todoTasks',JSON.stringify(todoTasks))
+function saveTaskInLocalstorage(todoTasks) {
+  localStorage.setItem("todoTasks", JSON.stringify(todoTasks));
 }
-function renderTasks(arrTask){
-   let tasks=getTaskInLocalstorage();
-   if(arrTask!==undefined) tasks=arrTask;
-       
-    let html=""+ tasks.map(function(task,index){
+function renderTasks(arrTask) {
+  let tasks = getTaskInLocalstorage();
+  if (arrTask !== undefined) tasks = arrTask;
+
+  let html =
+    "" +
+    tasks
+      .map(function (task, index) {
         return `
-        <div class="task-card ${task.color} ${
-                task.isCompleted ? "completed" : ""
-            }">
+        <div class="task-card ${escape(
+          task.color
+        )} ${task.isCompleted ? "completed" : ""}">
         <div class="task-header">
-          <h3 class="task-title">${task.title}</h3>
+          <h3 class="task-title">${escape(task.title)}</h3>
           <button class="task-menu">
             <i class="fa-solid fa-ellipsis fa-icon"></i>
             <div class="dropdown-menu">
@@ -61,142 +124,165 @@ function renderTasks(arrTask){
             </div>
           </button>
         </div>
-        <p class="task-description">${task.description}</p>
-        <div class="task-time">${customTime(task.startTime)} - ${customTime(task.endTime)}</div>
+        <p class="task-description">${escape(task.description)}</p>
+        <div class="task-time">${customTime(
+          escape(task.startTime)
+        )} - ${customTime(escape(task.endTime))}</div>
       </div>
-        `
-    }).join("");
+        `;
+      })
+      .join("");
 
-
-    if(html.length===0) html=`<div>Không tìm thấy nhiệm vụ vào</div>`
-    todoList.innerHTML=html;
+  if (html.length === 0) html = `<div>Không tìm thấy nhiệm vụ vào</div>`;
+  todoList.innerHTML = html;
 }
 
-function openTodoForm(){
-    todoForm.className="modal-overlay show"
-    setTimeout(()=>{taskTitle.focus()},100)
+//Tạo hàm thêm hoặc xóa class trong classList của element
+function openOrCloseForm(element, classNameRemove, isInsert) {
+  if (isInsert) {
+    indexEdit = null;
+    const modalTitle = todoForm.querySelector(".modal-title");
+    modalTitle.textContent = " Add New Task";
+    submitBtn.textContent = "Create Task";
+  }
+  if (indexEdit !== null) {
+    const modalTitle = todoForm.querySelector(".modal-title");
+    modalTitle.textContent = " Edit todo Tasks";
+    submitBtn.textContent = "Save Edit";
+  }
+  if (typeof classNameRemove !== "string" || element === null)
+    return "Check element and classNameRemove";
+  element.classList.toggle(classNameRemove);
+  setTimeout(() => {
+    taskTitle.focus();
+    todoForm.querySelector(".modal").scrollTop = 0;
+  }, 100);
+  todoTask.reset();
 }
+// Đóng mở form todoForm
+addBtn.addEventListener("click", () => {
+  openOrCloseForm(todoForm, "show", true);
+});
+closeBtn.addEventListener("click", () => {
+  openOrCloseForm(todoForm, "show");
+});
 
-function closeTodoForm(){
-    setTimeout(()=>todoForm.querySelector(".modal").scrollTop=0,200)
-    
-    todoForm.className="modal-overlay"
-    todoTask.reset();
-}
-// Đóng mở form nhập dữ liệu
-addBtn.onclick=function(){
-    indexEdit=null;
-    const modalTitle= todoForm.querySelector('.modal-title')
-    modalTitle.textContent=" Add New Task"
-    submitBtn.textContent="Create Task"
-    openTodoForm();
-};
-closeBtn.onclick=closeTodoForm;
-cancelBtn.onclick=closeTodoForm;
+cancelBtn.addEventListener("click", () => {
+  openOrCloseForm(todoForm, "show");
+});
 
 //Submit form
-todoTask.onsubmit=function(event){
-    event.preventDefault();
-    let task=Object.fromEntries(new FormData(todoTask)); 
-    task.isCompleted=false;   
-    todoTasks=getTaskInLocalstorage();
-    if(indexEdit===null){
-        if(!todoTasks.find((data)=>data.title===task.title)){
-            todoTasks.unshift(task); 
-            saveTaskInLocalstorage(todoTasks);  
-            renderTasks();
-            closeTodoForm();         
-        }else{
-            alert('Thêm task thất bại, trùng title')
-        }       
-    }else{
-        let newTasks=todoTasks.slice();
-        newTasks.splice(indexEdit,1);
-        if(!newTasks.find((data)=>data.title===task.title)){
-            todoTasks[indexEdit]=task;
-            saveTaskInLocalstorage(todoTasks);
-            renderTasks();
-            closeTodoForm();   
-        }else{
-            alert('Sửa task thất bại, trùng title')
-        }       
-    }   
-    
-}
+todoTask.addEventListener("submit", function (event) {
+  event.preventDefault();
+  let task = Object.fromEntries(new FormData(todoTask));
+  task.isCompleted = false;
+  todoTasks = getTaskInLocalstorage();
+  if (indexEdit === null) {
+    if (!todoTasks.find((data) => data.title === task.title)) {
+      todoTasks.unshift(task);
+      saveTaskInLocalstorage(todoTasks);
+      renderTasks();
+      openOrCloseForm(todoForm, "show");
+      createToast(toasts[0], "Thành công rồi bạn nhé! Yên tâm đi");
+    } else {
+      createToast(
+        toasts[3],
+        "Không thể thêm được đâu, trùng title mất rồi bạn ơi."
+      );
+    }
+  } else {
+    let newTasks = todoTasks.slice();
+    newTasks.splice(indexEdit, 1);
+    if (!newTasks.find((data) => data.title === task.title)) {
+      todoTasks[indexEdit] = task;
+      saveTaskInLocalstorage(todoTasks);
+      renderTasks();
+      openOrCloseForm(todoForm, "show");
+      createToast(toasts[0], "Thành công rồi bạn nhé! Yên tâm đi");
+    } else {
+      createToast(
+        toasts[3],
+        "Không thể sửa được đâu, trùng title mất rồi bạn ơi."
+      );
+    }
+  }
+});
+
 //render lần đầu
-renderTasks()
+renderTasks();
 // Sửa xóa
-todoList.onclick=function(event){
-    const editBtn=event.target.closest(".edit-btn");
-    const completedBtn=event.target.closest(".complete-btn");
-    const deleteBtn=event.target.closest(".delete-btn")
+todoList.addEventListener("click", function (event) {
+  const editBtn = event.target.closest(".edit-btn");
+  const completedBtn = event.target.closest(".complete-btn");
+  const deleteBtn = event.target.closest(".delete-btn");
 
-    if(deleteBtn){
-        let tasks= getTaskInLocalstorage();
-        let index= deleteBtn.dataset.index;
-        if(confirm("Bạn chắc chắn muốn xóa  công việc này?")){
-            let newTasks= tasks.splice(index,1);
-            saveTaskInLocalstorage(tasks);
-            renderTasks();
-        }
+  if (deleteBtn) {
+    let tasks = getTaskInLocalstorage();
+    let index = deleteBtn.dataset.index;
+    if (confirm("Bạn chắc chắn muốn xóa  công việc này?")) {
+      let newTasks = tasks.splice(index, 1);
+      saveTaskInLocalstorage(tasks);
+      renderTasks();
     }
-    if(completedBtn){
-        let tasks= getTaskInLocalstorage();
-        let index= completedBtn.dataset.index;
-        tasks[index].isCompleted=true;
-        saveTaskInLocalstorage(tasks);
-        renderTasks();
-    }
-    if( editBtn){
-        let index= editBtn.dataset.index;
-        indexEdit=index;
-        openTodoForm();
-        const modalTitle= todoForm.querySelector('.modal-title')
-        modalTitle.textContent=" Edit todo Tasks"
-        submitBtn.textContent="Save Edit"
-        let task= getTaskInLocalstorage()[index];
-
-        for(let key in task){
-            if(key !="isCompleted"){
-                const input=$(`[name=${key}]`)
-                input.value=task[key];
-            }           
-        }
-    }
-}
-// chức năng tìm kiếm
-searchInput.oninput=function(){
-    if(searchInput.value !=null){
-        allTaskBtn.className="tab-button active";
-        completedBtn.className="tab-button completed-btn";
-        activeBtn.className="tab-button ";
-        let str= searchInput.value.toString().toLowerCase();
-        let todoTasks=getTaskInLocalstorage();
-        let newList= todoTasks.filter((task)=> (task.title.toString().toLowerCase().includes(str)||task.description.toString().toLowerCase().includes(str)));
-        renderTasks(newList);
-    }     
-}
-//loc complete. active
-allTaskBtn.onclick=function(){
-    allTaskBtn.className="tab-button active";
-    completedBtn.className="tab-button completed-btn";
-    activeBtn.className="tab-button ";
+  }
+  if (completedBtn) {
+    let tasks = getTaskInLocalstorage();
+    let index = completedBtn.dataset.index;
+    tasks[index].isCompleted = true;
+    saveTaskInLocalstorage(tasks);
     renderTasks();
-}
-activeBtn.onclick=function(){
-    allTaskBtn.className="tab-button";
-    completedBtn.className="tab-button completed-btn";
-    activeBtn.className="tab-button active";
-    let todoTasks=getTaskInLocalstorage();
-    let newList= todoTasks.filter((task)=> task.isCompleted===false);
-    renderTasks(newList);
-}
-completedBtn.onclick=function(){
-    allTaskBtn.className="tab-button";
-    activeBtn.className="tab-button ";
-    completedBtn.className="tab-button completed-btn active";
-    let todoTasks=getTaskInLocalstorage();
-    let newList= todoTasks.filter((task)=> task.isCompleted===true);
-    renderTasks(newList);
-}
+  }
+  if (editBtn) {
+    let index = editBtn.dataset.index;
+    indexEdit = index;
+    openOrCloseForm(todoForm, "show");
+    let task = getTaskInLocalstorage()[index];
 
+    for (let key in task) {
+      if (key != "isCompleted") {
+        const input = $(`[name=${key}]`);
+        input.value = task[key];
+      }
+    }
+  }
+});
+
+// chức năng tìm kiếm
+searchInput.addEventListener("input", function () {
+  if (searchInput.value != null) {
+    allTaskBtn.className = "tab-button active";
+    completedBtn.className = "tab-button completed-btn";
+    activeBtn.className = "tab-button ";
+    let str = searchInput.value.toString().toLowerCase();
+    let todoTasks = getTaskInLocalstorage();
+    let newList = todoTasks.filter(
+      (task) =>
+        task.title.toString().toLowerCase().includes(str) ||
+        task.description.toString().toLowerCase().includes(str)
+    );
+    renderTasks(newList);
+  }
+});
+//loc complete. active
+allTaskBtn.addEventListener("click", function () {
+  allTaskBtn.className = "tab-button active";
+  completedBtn.className = "tab-button completed-btn";
+  activeBtn.className = "tab-button ";
+  renderTasks();
+});
+activeBtn.addEventListener("click", function () {
+  allTaskBtn.className = "tab-button";
+  completedBtn.className = "tab-button completed-btn";
+  activeBtn.className = "tab-button active";
+  let todoTasks = getTaskInLocalstorage();
+  let newList = todoTasks.filter((task) => task.isCompleted === false);
+  renderTasks(newList);
+});
+completedBtn.addEventListener("click", function () {
+  allTaskBtn.className = "tab-button";
+  activeBtn.className = "tab-button ";
+  completedBtn.className = "tab-button completed-btn active";
+  let todoTasks = getTaskInLocalstorage();
+  let newList = todoTasks.filter((task) => task.isCompleted === true);
+  renderTasks(newList);
+});
