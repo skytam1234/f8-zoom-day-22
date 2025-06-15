@@ -49,7 +49,9 @@ const toasts = [
 function createToast(toast, message) {
   if (!toast) return;
   const toastElementOld = $(".toast");
-  document.body.removeChild(toastElementOld);
+  console.log(toastElementOld);
+  if (toastElementOld) document.body.removeChild(toastElementOld);
+
   const toastElement = document.createElement("div");
   toastElement.message ? (toast.message = message) : toast;
   toastElement.classList.add("toast", `toast--${toast.type}`);
