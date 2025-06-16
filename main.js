@@ -53,7 +53,7 @@ function createToast(toast, message) {
   if (toastElementOld) document.body.removeChild(toastElementOld);
 
   const toastElement = document.createElement("div");
-  toastElement.message ? (toast.message = message) : toast;
+  message ? (toast.message = message) : toast;
   toastElement.classList.add("toast", `toast--${toast.type}`);
   toastElement.innerHTML = `
   <div class="toast__icon">
