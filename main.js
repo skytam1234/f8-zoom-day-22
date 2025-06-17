@@ -2,14 +2,17 @@ $ = document.querySelector.bind(document);
 $$ = document.querySelectorAll.bind(document);
 
 const searchInput = $(".search-input");
+
 const activeBtn = $("#active-btn");
 const completedBtn = $("#completed-btn");
 const allTaskBtn = $("#allTask-btn");
 const addBtn = $(".add-btn");
+
 const closeBtn = $(".modal-close");
 const cancelBtn = $(".btn-cancel");
 const submitBtn = $(".btn-submit");
 const todoForm = $("#addTaskModal");
+const modal = $(".modal");
 
 const taskTitle = $("#taskTitle");
 
@@ -45,11 +48,9 @@ const toasts = [
     toastIcon: "fa-solid fa-exclamation",
   },
 ];
-
 function createToast(toast, message) {
   if (!toast) return;
   const toastElementOld = $(".toast");
-  console.log(toastElementOld);
   if (toastElementOld) document.body.removeChild(toastElementOld);
 
   const toastElement = document.createElement("div");
@@ -166,13 +167,28 @@ addBtn.addEventListener("click", () => {
   openOrCloseForm(todoForm, "show", true);
 });
 closeBtn.addEventListener("click", () => {
-  openOrCloseForm(todoForm, "show");
+  if(confirm(" Bạn có chắc chắn muốn đóng form ")){
+    openOrCloseForm(todoForm, "show");
+  }
+  
 });
 
 cancelBtn.addEventListener("click", () => {
-  openOrCloseForm(todoForm, "show");
+  if(confirm(" Bạn có chắc chắn muốn đóng form ")){
+    openOrCloseForm(todoForm, "show");
+  }
 });
 
+todoForm.addEventListener("click",(event)=>{
+  console.dir(event.target);
+  console.log(modal)
+  if(!modal.contains(event.target)){
+    if(confirm(" Bạn có chắc chắn muốn đóng form ")){
+      openOrCloseForm(todoForm, "show");
+    }
+  }
+
+})
 //Submit form
 todoTask.addEventListener("submit", function (event) {
   event.preventDefault();
